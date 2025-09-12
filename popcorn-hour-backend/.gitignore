@@ -1,0 +1,12 @@
+# Dependencias de Node
+/node_modules
+
+# Archivos de entorno
+.env
+
+# Archivos de configuracion sensibles
+/config/default.json
+/config/production.json
+
+# Archivos de registro
+*.log

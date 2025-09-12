@@ -1,0 +1,18 @@
+/* src/index.css */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+body {
+  background-color: #3f0f36; /* Tono morado oscuro */
+  color: white; /* Para que el texto sea visible */
+  overflow-x: hidden;
+}
