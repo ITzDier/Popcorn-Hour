@@ -1,5 +1,5 @@
-## Popcorn-Hour 🍿
-# ¡Critica de Películas!
+# Popcorn-Hour 🍿
+## ¡Critica de Películas!
 
 Plataforma web para compartir, calificar y comentar sobre películas y series. Permite a los usuarios agregar favoritos, dejar opiniones y a los moderadores gestionar el catálogo de contenido.
 
@@ -80,7 +80,7 @@ NOTA: Consulta README.md popcorn-hour-fronted para información detallada extra 
 # EN
 
 # Popcorn-Hour 🍿
-Cinema Reviews!
+## Cinema Reviews!
 
 A web platform to share, rate, and comment on movies and series. Users can add favorites, leave reviews, and moderators can manage the content catalog.
 
