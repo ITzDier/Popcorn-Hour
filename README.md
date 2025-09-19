@@ -33,12 +33,12 @@ Plataforma web para compartir, calificar y comentar sobre películas y series. P
    ```
 
 3. Configura el backend:
-   - Crea tu archivo `.env` con tus variables de entorno necesarias (ejemplo: conexión a la base de datos, clave JWT, etc.)
+   - Crea tu archivo `.env` con tus variables de entorno necesarias (ejemplo: conexión a la base de datos, clave JWT, etc.) E inicializa.
 
 4. Inicia el backend:
 
    ```bash
-   python app.py
+   npm start
    ```
 
 5. Inicia el frontend:
@@ -114,12 +114,12 @@ A web platform to share, rate, and comment on movies and series. Users can add f
    ```
 
 3. Configure the backend:
-   - Create your `.env` file with the necessary environment variables (e.g., database connection, JWT key, etc.)
+   - Create your `.env` file with the necessary environment variables (e.g., database connection, JWT key, etc.) And start it.
 
 4. Start the backend:
 
    ```bash
-   python app.py
+   npm start
    ```
 
 5. Start the frontend:
