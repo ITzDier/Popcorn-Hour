@@ -1,6 +1,5 @@
-// src/components/Register.js
 import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Importa Link
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import Bg1 from '../assets/Bg1.png';
 
@@ -8,7 +7,7 @@ const Register = () => {
     const [nombreUsuario, setNombreUsuario] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [tipoUsuario, setTipoUsuario] = useState('estandar');
+    const [role, setRole] = useState('estandar'); // Usar 'role' para coincidir con backend
     const [msg, setMsg] = useState('');
     const { register } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -17,14 +16,14 @@ const Register = () => {
         e.preventDefault();
         setMsg('');
         try {
-            await register(nombreUsuario, email, password);
-            navigate('/login'); // Redirige al login tras registro exitoso
+            await register(nombreUsuario, email, password, role); // Pasa el rol seleccionado
+            navigate('/login');
         } catch (err) {
             setMsg(err.message || 'Error al registrar usuario.');
         }
     };
 
-// --- ESTILOS ACTUALIZADOS ---
+    // Estilos
     const containerStyle = {
         backgroundImage: `url(${Bg1})`,
         backgroundSize: 'cover',
@@ -39,19 +38,19 @@ const Register = () => {
         boxSizing: 'border-box'
     };
     const cardStyle = {
-        backgroundColor: 'rgba(25, 25, 25, 0.9)', // Fondo más oscuro y semi-transparente
-        padding: '50px', // Mayor padding
+        backgroundColor: 'rgba(25, 25, 25, 0.9)',
+        padding: '50px',
         borderRadius: '12px',
         color: 'white',
         textAlign: 'center',
-        maxWidth: '450px', // Ancho un poco mayor
+        maxWidth: '450px',
         width: '100%',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)', // Sombra más pronunciada
-        border: '1px solid rgba(255, 255, 255, 0.1)' // Borde sutil
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
     };
 
     const inputStyle = {
-        width: 'calc(100% - 20px)', // Ocupa casi todo el ancho
+        width: 'calc(100% - 20px)',
         padding: '12px 10px',
         margin: '10px 0',
         borderRadius: '5px',
@@ -59,7 +58,7 @@ const Register = () => {
         backgroundColor: '#333',
         color: 'white',
         fontSize: '1em',
-        outline: 'none', // Sin borde al enfocar
+        outline: 'none',
         boxSizing: 'border-box'
     };
 
@@ -69,7 +68,7 @@ const Register = () => {
         marginTop: '20px',
         borderRadius: '5px',
         border: 'none',
-        backgroundColor: '#e50914', // Rojo vibrante
+        backgroundColor: '#e50914',
         color: 'white',
         fontSize: '1.1em',
         fontWeight: 'bold',
@@ -77,7 +76,7 @@ const Register = () => {
         transition: 'background-color 0.3s ease'
     };
 
-    const buttonHoverStyle = { // Para el efecto hover
+    const buttonHoverStyle = {
         backgroundColor: '#f40612'
     };
 
@@ -89,7 +88,7 @@ const Register = () => {
         fontSize: '0.9em'
     };
 
-    const linkHoverStyle = { // Para el efecto hover
+    const linkHoverStyle = {
         color: 'white'
     };
 
@@ -123,9 +122,9 @@ const Register = () => {
                         style={inputStyle}
                     />
                     <select
-                        value={tipoUsuario}
-                        onChange={(e) => setTipoUsuario(e.target.value)}
-                        style={inputStyle} // Aplica el mismo estilo de input
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        style={inputStyle}
                     >
                         <option value="estandar">Estándar</option>
                         <option value="moderador">Moderador</option>
@@ -141,8 +140,8 @@ const Register = () => {
                 </form>
                 {msg && <p style={{ color: '#f40612', marginTop: '15px' }}>{msg}</p>}
 
-                <Link 
-                    to="/login" 
+                <Link
+                    to="/login"
                     style={linkStyle}
                     onMouseOver={(e) => e.target.style.color = linkHoverStyle.color}
                     onMouseOut={(e) => e.target.style.color = linkStyle.color}

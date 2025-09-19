@@ -1,22 +1,24 @@
 const mongoose = require('mongoose');
 
-const ratingSchema = new mongoose.Schema({
-  mediaId: { // El ID de la película o serie
+const RatingSchema = new mongoose.Schema({
+  mediaId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Media',
-    required: true,
+    required: true
   },
-  userId: { // El ID del usuario que califica
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
   calificacion: {
     type: Number,
-    required: true,
     min: 1,
-    max: 5,
-  },
-});
+    max: 10,
+    required: true
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model('Rating', ratingSchema);
+RatingSchema.index({ mediaId: 1, userId: 1 }, { unique: true }); // Un usuario, una calificación por contenido
+
+module.exports = mongoose.model('Rating', RatingSchema);

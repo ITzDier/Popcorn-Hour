@@ -1,4 +1,3 @@
-// src/App.js
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
@@ -11,6 +10,7 @@ import MediaDetails from './components/MediaDetails';
 import WelcomePage from './components/WelcomePage';
 import InternalLayout from './components/InternalLayout';
 import Navbar from './components/Navbar';
+import Favoritos from './pages/Favoritos'; // <-- nuevo import
 
 function App() {
     return (
@@ -20,7 +20,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/welcome" element={<WelcomePage />} />
-            {/* Páginas internas CON Navbar */}
+            {/* Páginas internas CON Navbar y fondo especial */}
             <Route path="/media" element={
                 <InternalLayout>
                     <Navbar />
@@ -43,6 +43,12 @@ function App() {
                 <InternalLayout>
                     <Navbar />
                     <MediaDetails />
+                </InternalLayout>
+            } />
+            <Route path="/favoritos" element={
+                <InternalLayout>
+                    <Navbar />
+                    <Favoritos />
                 </InternalLayout>
             } />
         </Routes>

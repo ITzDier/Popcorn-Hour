@@ -1,16 +1,18 @@
 const mongoose = require('mongoose');
 
-const favoriteSchema = new mongoose.Schema({
-  mediaId: { // El ID de la película o serie
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Media',
-    required: true,
-  },
-  userId: { // El ID del usuario que guarda la película
+const FavoriteSchema = new mongoose.Schema({
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
+  mediaId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Media', // Cambia "Media" por el nombre real de tu modelo de películas/series
+    required: true
+  }
+}, {
+  timestamps: true
 });
 
-module.exports = mongoose.model('Favorite', favoriteSchema);
+module.exports = mongoose.model('Favorite', FavoriteSchema);

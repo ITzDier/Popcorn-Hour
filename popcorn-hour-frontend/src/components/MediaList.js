@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const cardStyle = {
     width: '250px',
@@ -8,7 +9,8 @@ const cardStyle = {
     background: '#1a0826',
     color: '#fff',
     position: 'relative',
-    transition: 'transform 0.3s, box-shadow 0.3s'
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    cursor: 'pointer'
 };
 
 const imgContainerStyle = {
@@ -74,6 +76,7 @@ export default function MediaList() {
     const [media, setMedia] = useState([]);
     const [loading, setLoading] = useState(true);
     const [hovered, setHovered] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -84,7 +87,6 @@ export default function MediaList() {
         })
             .then(res => res.json())
             .then(data => {
-                console.log('Respuesta del backend:', data); // <-- Aquí va el console.log
                 if (Array.isArray(data)) {
                     setMedia(data);
                 } else {
@@ -95,7 +97,12 @@ export default function MediaList() {
             .catch(() => setLoading(false));
     }, []);
 
-    if (loading) return <div style={{ color: '#fff', textAlign: 'center', marginTop: '60px', fontSize: '1.3rem' }}>Cargando...</div>;
+    if (loading)
+        return (
+            <div style={{ color: '#fff', textAlign: 'center', marginTop: '60px', fontSize: '1.3rem' }}>
+                Cargando...
+            </div>
+        );
     if (!media || media.length === 0) {
         return (
             <div style={{ color: '#fff', textAlign: 'center', marginTop: '60px', fontSize: '1.3rem' }}>
@@ -118,11 +125,12 @@ export default function MediaList() {
                     }}
                     onMouseEnter={() => setHovered(item._id)}
                     onMouseLeave={() => setHovered(null)}
+                    onClick={() => navigate(`/media/${item._id}`)} // Navega al detalle al hacer click
                 >
                     <div style={imgContainerStyle}>
                         <img
                             src={item.posterUrl || 'https://via.placeholder.com/250x350?text=Sin+Imagen'}
-                            alt={item.title || item.titulo || 'Sin título'}
+                            alt={item.titulo || item.title || 'Sin título'}
                             style={{
                                 ...imgStyle,
                                 filter: hovered === item._id ? 'brightness(0.5)' : 'brightness(1)'
@@ -135,7 +143,8 @@ export default function MediaList() {
                             }}
                         >
                             <div style={genreStyle}>
-                                {item.genre || item.genero || 'Sin género'}
+                                {Array.isArray(item.genero) ? item.genero.join(', ')
+                                    : item.genre || item.genero || 'Sin género'}
                             </div>
                             <div style={ratingStyle}>
                                 ⭐ {item.rating || item.calificacion || 'Sin calificación'}
@@ -144,11 +153,11 @@ export default function MediaList() {
                     </div>
                     <div style={{ padding: '18px 12px 12px 12px' }}>
                         <div style={titleStyle}>
-                            {item.title || item.titulo || 'Sin título'}
+                            {item.titulo || item.title || 'Sin título'}
                         </div>
                     </div>
                 </div>
             ))}
         </div>
     );
-};
+}

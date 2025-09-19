@@ -4,6 +4,10 @@ const Media = require('../models/Media');
 const auth = require('../middleware/auth');
 const role = require('../middleware/role');
 
+// Si tienes modelos para Rating y Comment:
+const Rating = require('../models/Rating');
+const Comment = require('../models/Comment');
+
 // Ver catálogo (solo usuarios autenticados)
 router.get('/', auth, async (req, res) => {
     try {
@@ -14,16 +18,6 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
-// Si quieres que sea público, elimina `auth`:
-// router.get('/', async (req, res) => {
-//     try {
-//         const media = await Media.find();
-//         res.json(media);
-//     } catch (err) {
-//         res.status(500).json({ msg: 'Error al obtener el catálogo' });
-//     }
-// });
-
 // Subir contenido (solo moderadores)
 router.post('/', auth, role('moderador'), async (req, res) => {
     try {
@@ -32,6 +26,19 @@ router.post('/', auth, role('moderador'), async (req, res) => {
         res.status(201).json(newMedia);
     } catch (err) {
         res.status(500).json({ msg: 'Error al subir contenido' });
+    }
+});
+
+// Eliminar contenido (solo moderadores)
+router.delete('/:id', auth, role('moderador'), async (req, res) => {
+    try {
+        const media = await Media.findByIdAndDelete(req.params.id);
+        if (!media) {
+            return res.status(404).json({ msg: 'Contenido no encontrado.' });
+        }
+        res.json({ msg: 'Contenido eliminado correctamente.' });
+    } catch (err) {
+        res.status(500).json({ msg: 'Error al eliminar el contenido.' });
     }
 });
 
@@ -46,6 +53,28 @@ router.get('/:id', async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error del servidor.');
+    }
+});
+
+// Calificar película o serie (usuario autenticado)
+router.post('/:id/rate', auth, async (req, res) => {
+    try {
+        const { calificacion } = req.body;
+        const mediaId = req.params.id;
+        const userId = req.user.id;
+
+        // Busca si el usuario ya calificó
+        let rating = await Rating.findOne({ mediaId, userId });
+        if (rating) {
+            rating.calificacion = calificacion;
+            await rating.save();
+        } else {
+            rating = new Rating({ mediaId, userId, calificacion });
+            await rating.save();
+        }
+        res.json({ msg: 'Calificación guardada.' });
+    } catch (err) {
+        res.status(500).json({ msg: 'Error al calificar.' });
     }
 });
 

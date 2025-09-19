@@ -3,7 +3,7 @@ module.exports = function(requiredRole) {
         if (req.user && req.user.role === requiredRole) {
             next();
         } else {
-            res.status(403).json({ msg: 'Acceso denegado: solo moderadores' });
+            res.status(403).json({ msg: `Acceso denegado: solo usuarios con rol "${requiredRole}"` });
         }
     };
 };

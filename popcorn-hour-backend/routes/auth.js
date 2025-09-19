@@ -8,32 +8,47 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const auth = require('../middleware/auth');
 
-// ... La ruta de registro va aquí ...
+// FUNCIÓN PARA GENERAR EL TOKEN JWT
+function generateToken(user) {
+    return jwt.sign(
+        {
+            id: user._id,
+            role: user.role // Usar campo 'role'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+    );
+}
+
+// Ruta de registro
 router.post('/register', async (req, res) => {
-    const { nombreUsuario, email, password, tipoUsuario } = req.body;
+    const { nombreUsuario, email, password, role } = req.body;
 
     try {
-        // Verificar si el usuario ya existe
+        // Verifica si el usuario ya existe
         let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ msg: 'El usuario ya existe.' });
         }
 
-        // Crear nuevo usuario
-        user = new User({
-            nombreUsuario,
-            email,
-            password, // Se hashea más abajo
-            tipoUsuario
-        });
+        // Validar que el role sea permitido
+        const validRoles = ['estandar', 'moderador'];
+        const userRole = validRoles.includes(role) ? role : 'estandar';
 
         // Hashear la contraseña
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Generar secreto para 2FA (opcional, si planeas habilitarlo después)
-        user.auth2faSecret = speakeasy.generateSecret({ length: 20 }).base32;
-        user.is2faEnabled = false; // Deshabilitado por defecto
+        // Crear usuario
+        user = new User({
+            nombreUsuario,
+            email,
+            password: hashedPassword,
+            role: userRole,
+            favoritos: [],
+            auth2faSecret: speakeasy.generateSecret({ length: 20 }).base32,
+            is2faEnabled: false
+        });
 
         await user.save();
 
@@ -51,38 +66,34 @@ router.post('/login', async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ msg: 'Usuario no encontrado' });
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ msg: 'Contraseña incorrecta' });
 
-        // Mostrar credenciales en consola
         console.log('Usuario logueado:', {
             id: user._id,
             email: user.email,
-            username: user.username,
+            username: user.nombreUsuario,
             role: user.role
         });
 
-        // Genera el token (ajusta según tu método)
         const token = generateToken(user);
 
-        // Retorna el usuario y el token
         res.json({
             token,
             user: {
                 _id: user._id,
                 nombreUsuario: user.nombreUsuario,
                 email: user.email,
-                role: user.tipoUsuario // <-- aquí mapeas tipoUsuario a role
+                role: user.role
             }
         });
     } catch (err) {
+        console.error('Error en login:', err);
         res.status(500).json({ msg: 'Error en el servidor' });
     }
 });
 
-// @route   POST api/auth/forgot-password
-// @desc    Solicitar restablecimiento de contraseña
-// @access  Public
+// Solicitar restablecimiento de contraseña
 router.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
     try {
@@ -91,23 +102,19 @@ router.post('/forgot-password', async (req, res) => {
             return res.status(404).json({ msg: 'Usuario no encontrado.' });
         }
 
-        // Genera el token y lo guarda en el usuario
         const resetToken = user.getResetPasswordToken();
         await user.save();
 
-        // Crea el enlace de restablecimiento
         const resetUrl = `http://tu-frontend.com/reset-password/${resetToken}`;
 
-        // Configura el transportador de correo
         const transporter = nodemailer.createTransport({
-            service: 'Gmail', // O el servicio que uses, como 'SendGrid', etc.
+            service: 'Gmail',
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             }
         });
 
-        // Opciones del correo
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: user.email,
@@ -124,9 +131,7 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
-// @route   POST api/auth/reset-password/:token
-// @desc    Restablecer contraseña con el token
-// @access  Public
+// Restablecer contraseña con el token
 router.post('/reset-password/:token', async (req, res) => {
     const resetToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
     const { password } = req.body;
@@ -134,18 +139,15 @@ router.post('/reset-password/:token', async (req, res) => {
     try {
         const user = await User.findOne({ 
             resetPasswordToken: resetToken,
-            resetPasswordExpire: { $gt: Date.now() } // Verifica que el token no haya expirado
+            resetPasswordExpire: { $gt: Date.now() }
         });
 
         if (!user) {
             return res.status(400).json({ msg: 'Token de restablecimiento inválido o expirado.' });
         }
 
-        // Hashea la nueva contraseña y la guarda en el usuario
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
-        
-        // Limpia los campos de restablecimiento después de usarlos
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
 
@@ -158,9 +160,7 @@ router.post('/reset-password/:token', async (req, res) => {
     }
 });
 
-// @route   GET api/auth
-// @desc    Obtener datos del usuario
-// @access  Private
+// Obtener datos del usuario autenticado
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -168,19 +168,16 @@ router.get('/me', auth, async (req, res) => {
             _id: user._id,
             nombreUsuario: user.nombreUsuario,
             email: user.email,
-            role: user.tipoUsuario // <-- aquí también
+            role: user.role
         });
     } catch (err) {
         res.status(500).json({ msg: 'Error al obtener el usuario' });
     }
 });
 
-// @route   DELETE api/auth
-// @desc    Eliminar la cuenta del usuario autenticado
-// @access  Private
+// Eliminar la cuenta del usuario autenticado
 router.delete('/', auth, async (req, res) => {
     try {
-        // Encontrar y eliminar el usuario. req.user.id viene del token de autenticación.
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ msg: 'Usuario no encontrado' });

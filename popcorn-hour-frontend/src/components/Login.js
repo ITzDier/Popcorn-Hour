@@ -1,4 +1,3 @@
-// src/components/Login.js
 import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -17,7 +16,8 @@ const Login = () => {
         setMsg(''); // Limpia mensajes de error anteriores
 
         try {
-            await login(email, password);
+            // CORREGIDO: pasa un objeto con email y password
+            await login({ email, password });
             navigate('/welcome'); // Redirección directa después de un inicio de sesión exitoso
         } catch (err) {
             setMsg(err.message || 'Error de inicio de sesión. Credenciales incorrectas.');

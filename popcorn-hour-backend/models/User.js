@@ -30,7 +30,13 @@ const userSchema = new mongoose.Schema({
     default: false
   },
   resetPasswordToken: String, // Campo para el token de restablecimiento
-  resetPasswordExpire: Date // Fecha de expiración del token
+  resetPasswordExpire: Date, // Fecha de expiración del token
+
+  // FAVORITOS: array de IDs de Media
+  favoritos: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Media'
+  }]
 });
 
 // Función para generar un token de restablecimiento

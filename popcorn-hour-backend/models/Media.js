@@ -1,14 +1,30 @@
 const mongoose = require('mongoose');
 
 const MediaSchema = new mongoose.Schema({
-    titulo: { type: String, required: true },
-    sinopsis: { type: String, required: true },
-    anioEstreno: { type: Number, required: true },
-    genero: [{ type: String, required: true }],
-    director: { type: String, required: true },
-    elenco: [{ type: String, required: true }],
-    posterUrl: { type: String, required: true },
-    tipo: { type: String, required: true }
+  titulo: {
+    type: String,
+    required: true
+  },
+  descripcion: {
+    type: String
+  },
+  imagen: {
+    type: String // URL de la imagen o poster
+  },
+  // Puedes agregar más campos según tu necesidad
+  // Ejemplo:
+  tipo: {
+    type: String, // "pelicula", "serie", etc.
+    required: true
+  },
+  año: {
+    type: Number
+  },
+  genero: {
+    type: String
+  }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Media', MediaSchema);

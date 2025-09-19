@@ -2,26 +2,25 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
-app.use(cors());
+const session = require('express-session');
 
 dotenv.config();
 
 const app = express();
 
-// Agrega esto para parsear JSON
+// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-const session = require('express-session');
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'popcornhoursecret',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
 }));
 
-// Conectar a la base de datos
+// Conexión a la base de datos
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
@@ -31,9 +30,9 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
+connectDB();
 
-connectDB(); // Llamada para iniciar la conexión
-
+// Rutas
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
@@ -43,12 +42,16 @@ app.use('/api/media', mediaRoutes);
 const interactionsRoutes = require('./routes/interactions');
 app.use('/api/interactions', interactionsRoutes);
 
-const PORT = process.env.PORT || 5000;
+const userRoutes = require('./routes/user');
+app.use('/api/user', userRoutes);
 
+// Ruta de prueba
 app.get('/', (req, res) => {
     res.send('API de PopcornHour en funcionamiento.');
 });
 
+// Puerto
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

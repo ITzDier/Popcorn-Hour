@@ -1,4 +1,3 @@
-// src/components/Profile.js
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -31,6 +30,17 @@ const infoStyle = {
   padding: '8px 0',
 };
 
+const badgeStyle = tipo => ({
+  display: 'inline-block',
+  marginLeft: '8px',
+  padding: '2px 10px',
+  borderRadius: '6px',
+  background: tipo === 'moderador' ? '#ffc107' : '#6c63ff',
+  color: '#222',
+  fontWeight: 'bold',
+  fontSize: '1rem',
+});
+
 const buttonStyle = {
   background: 'linear-gradient(90deg, #ff4c4c 60%, #ffb347 100%)',
   color: '#fff',
@@ -57,7 +67,6 @@ function Profile() {
           headers: { 'x-auth-token': token },
         });
 
-        // Si la solicitud es exitosa, cierra la sesión del usuario y redirige
         logout();
         navigate('/');
         alert('Tu cuenta ha sido eliminada con éxito.');
@@ -76,6 +85,10 @@ function Profile() {
     return <h2>Debes iniciar sesión para ver esta página.</h2>;
   }
 
+  // Muestra tipoUsuario o role, y si está vacío, "No asignado"
+  const tipo = user.tipoUsuario || user.role || '';
+  const tipoText = tipo ? tipo.charAt(0).toUpperCase() + tipo.slice(1) : 'No asignado';
+
   return (
     <div style={{ padding: '20px' }}>
       <div style={cardStyle}>
@@ -87,7 +100,9 @@ function Profile() {
           <span>📧 <b>Email:</b> {user.email}</span>
         </div>
         <div style={infoStyle}>
-          <span>⭐ <b>Tipo de Usuario:</b> {user.tipoUsuario}</span>
+          <span>⭐ <b>Tipo de Usuario:</b>
+            <span style={badgeStyle(tipo)}>{tipoText}</span>
+          </span>
         </div>
         <button style={buttonStyle} onClick={handleDeleteAccount}>
           Eliminar mi cuenta
@@ -95,6 +110,6 @@ function Profile() {
       </div>
     </div>
   );
-};
+}
 
 export default Profile;

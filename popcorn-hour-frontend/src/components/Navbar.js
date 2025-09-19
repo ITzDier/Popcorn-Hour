@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -8,6 +7,8 @@ import './Navbar.css';
 function Navbar() {
   const { user, role, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const userRole = role || (user && user.role);
 
   const handleLogoutClick = () => {
     logout();
@@ -27,16 +28,16 @@ function Navbar() {
           <li>
             <Link to="/profile" className="navbar-link">Perfil</Link>
           </li>
-          {role === 'moderador' && (
+          {/* Solo para moderador */}
+          {userRole === 'moderador' && (
             <li>
               <Link to="/add-media" className="navbar-link">Agregar contenido</Link>
             </li>
           )}
-          {user && user.role === 'moderador' && (
+          {/* Página de favoritos para todos los usuarios */}
+          {user && (
             <li>
-              <button className="navbar-link" onClick={() => window.location.href = '/add-media'}>
-                Subir contenido
-              </button>
+              <Link to="/favoritos" className="navbar-link">Favoritos</Link>
             </li>
           )}
           <li>

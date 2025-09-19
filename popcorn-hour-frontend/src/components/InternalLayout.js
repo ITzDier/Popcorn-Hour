@@ -1,5 +1,4 @@
 import React from 'react';
-import Navbar from './Navbar';
 
 const appBgStyle = {
     minHeight: '100vh',
@@ -27,7 +26,7 @@ export default function InternalLayout({ children }) {
     return (
         <div style={appBgStyle}>
             <div style={overlayStyle}></div>
-            <Navbar />
+            {/* Navbar is NOT included here! It should be added in App.js per your routing structure */}
             <div style={{ position: 'relative', zIndex: 1 }}>
                 {children}
             </div>
